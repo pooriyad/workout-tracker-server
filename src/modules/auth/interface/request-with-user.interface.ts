@@ -1,5 +1,6 @@
 import { Request } from 'express';
-import { TokenPayload } from './token-payload.interface';
+import { LoginPayloadDto } from '../dto/login-payload.dto';
+
 export interface RequestWithUser extends Request {
-  user: TokenPayload;
+  user: LoginPayloadDto;
 }

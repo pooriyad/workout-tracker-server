@@ -36,10 +36,11 @@ export class AuthController {
   })
   async login(@Req() request: RequestWithUser) {
     const { user } = request;
+    this.authService.setUser(user);
 
-    const cookies = this.authService.createTokenCookies(user);
+    const cookies = this.authService.createTokenCookies();
 
-    await this.authService.setRefreshToken(user);
+    await this.authService.setRefreshToken();
 
     request.res.setHeader('Set-cookie', cookies);
 
@@ -50,8 +51,7 @@ export class AuthController {
   @Post('refresh-token')
   @HttpCode(HttpStatus.OK)
   refreshToken(@Req() request: RequestWithUser) {
-    const { user } = request;
-    const newAccessTokenCookie = this.authService.createAccessTokenCookie(user);
+    const newAccessTokenCookie = this.authService.createAccessTokenCookie();
 
     request.res.setHeader('Set-Cookie', newAccessTokenCookie);
   }

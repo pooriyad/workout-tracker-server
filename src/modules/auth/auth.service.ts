@@ -2,9 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { UsersService } from '../users/users.service';
 import * as bcrypt from 'bcrypt';
-import { TokenPayload } from './interface/token-payload.interface';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { LoginPayloadDto } from './dto/login-payload.dto';
 
 @Injectable()
 export class AuthService {
@@ -13,6 +13,13 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
   ) {}
+
+  user: LoginPayloadDto = null;
+
+  setUser(user: LoginPayloadDto) {
+    this.user = user;
+  }
+
   register(createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
   }
@@ -29,16 +36,16 @@ export class AuthService {
     return bcrypt.compare(plainPassword, hashedPassword);
   }
 
-  createRefreshToken(user: TokenPayload) {
-    return this.createJwtToken(user, 'REFRESH');
+  createRefreshToken() {
+    return this.createJwtToken('REFRESH');
   }
 
-  createAccessToken(user: TokenPayload) {
-    return this.createJwtToken(user, 'ACCESS');
+  createAccessToken() {
+    return this.createJwtToken('ACCESS');
   }
 
-  createJwtToken(user: TokenPayload, tokenType: 'REFRESH' | 'ACCESS') {
-    const payload = { email: user.email, sub: user.id };
+  createJwtToken(tokenType: 'REFRESH' | 'ACCESS') {
+    const payload = { email: this.user.email, sub: this.user.id };
 
     const token = this.jwtService.sign(payload, {
       secret: this.configService.get(`JWT_${tokenType}_TOKEN_SECRET`),
@@ -50,19 +57,19 @@ export class AuthService {
     return token;
   }
 
-  createRefreshTokenCookie(user: TokenPayload) {
-    const token = this.createRefreshToken(user);
+  createRefreshTokenCookie() {
+    const token = this.createRefreshToken();
     return this.createJwtTokenCookie(token, 'Refresh');
   }
 
-  createAccessTokenCookie(user: TokenPayload) {
-    const token = this.createAccessToken(user);
+  createAccessTokenCookie() {
+    const token = this.createAccessToken();
     return this.createJwtTokenCookie(token, 'Access');
   }
 
-  createTokenCookies(user: TokenPayload) {
-    const refreshTokenCookie = this.createRefreshTokenCookie(user);
-    const accessTokenCookie = this.createAccessTokenCookie(user);
+  createTokenCookies() {
+    const refreshTokenCookie = this.createRefreshTokenCookie();
+    const accessTokenCookie = this.createAccessTokenCookie();
     return [refreshTokenCookie, accessTokenCookie];
   }
 
@@ -81,9 +88,9 @@ export class AuthService {
     )}; Same-Site=Strict`;
   }
 
-  async setRefreshToken(user: TokenPayload) {
-    const refreshToken = this.createRefreshToken(user);
-    await this.usersService.setRefreshToken(user.id, refreshToken);
+  async setRefreshToken() {
+    const refreshToken = this.createRefreshToken();
+    await this.usersService.setRefreshToken(this.user.id, refreshToken);
   }
 
   async removeRefreshToken(userId: string) {
