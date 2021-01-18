@@ -1,10 +1,10 @@
 import { Exclude } from 'class-transformer';
 import { BeforeInsert, Column, Entity } from 'typeorm';
-import { AbstratEntityWithUUID } from 'src/common/abstract-with-uuid.entity';
+import { AbstractEntityWithUUID } from 'src/common/abstract-with-uuid.entity';
 import * as bcrypt from 'bcrypt';
 
 @Entity()
-export class User extends AbstratEntityWithUUID {
+export class User extends AbstractEntityWithUUID {
   @Column({ unique: true })
   email: string;
 
