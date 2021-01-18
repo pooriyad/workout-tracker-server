@@ -6,15 +6,17 @@ import {
 
 export abstract class AbstratEntity {
   @PrimaryGeneratedColumn()
-  id: string;
+  id: number;
 
   @CreateDateColumn({
     type: 'timestamp with time zone',
+    select: false,
   })
   createdAt: Date;
 
   @UpdateDateColumn({
     type: 'timestamp with time zone',
+    select: false,
   })
   updatedAt: Date;
 }
