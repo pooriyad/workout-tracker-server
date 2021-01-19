@@ -77,15 +77,15 @@ export class AuthService {
     const expireDate = new Date(0).toUTCString();
 
     return [
-      `Access-Token=; HttpOnly; Path=/; Max-Age=0; Same-Site=Strict; Expires=${expireDate}`,
-      `Refresh-Token=; HttpOnly; Path=/; Max-Age=0; Same-Site=Strict; Expires=${expireDate}`,
+      `Access-Token=; HttpOnly; Path=/; Max-Age=0; SameSite=Strict; Expires=${expireDate}`,
+      `Refresh-Token=; HttpOnly; Path=/; Max-Age=0; SameSite=Strict; Expires=${expireDate}`,
     ];
   }
 
   createJwtTokenCookie(token: string, tokenType: 'Refresh' | 'Access') {
     return `${tokenType}-Token=${token}; HttpOnly; Path=/; Max-Age=${this.configService.get(
       `JWT_${tokenType}_TOKEN_EXPIRATION_TIME`,
-    )}; Same-Site=Strict`;
+    )}; SameSite=Strict`;
   }
 
   async setRefreshToken() {
