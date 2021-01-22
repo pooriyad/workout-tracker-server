@@ -1,4 +1,4 @@
-import { IsEnum, IsISO8601 } from 'class-validator';
+import { IsEnum, IsISO8601, NotEquals } from 'class-validator';
 import { ScheduleStatusEnum } from '../enum/schedule-status.enum';
 
 export class CreateScheduleDto {
@@ -16,5 +16,10 @@ export class CreateScheduleDto {
    * @example 'done'
    */
   @IsEnum(ScheduleStatusEnum)
+  // API does not accept indeterminate. because only system
+  // should be able to set the status of a schedule to `indeterminate`
+  @NotEquals('indeterminate', {
+    message: 'Invalid status value',
+  })
   status: ScheduleStatusEnum;
 }

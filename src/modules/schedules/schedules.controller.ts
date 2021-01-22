@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Post,
+  Put,
   Body,
   Param,
   Delete,
@@ -12,10 +13,19 @@ import {
   Query,
 } from '@nestjs/common';
 import { SchedulesService } from './schedules.service';
-import { CreateScheduleDto } from './dto/create-schedule.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RequestWithUser } from '../auth/interface/request-with-user.interface';
-import { ApiTags } from '@nestjs/swagger';
+import {
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiQuery,
+  ApiTags,
+} from '@nestjs/swagger';
+import { CreateScheduleDto } from './dto/create-schedule.dto';
+import { UpdateScheduleDto } from './dto/update-schedule.dto';
+import { SchedulePayload } from './dto/schedule-payload.dto';
+import { MonthQuery } from './dto/month-query.dto';
 
 // TODO: use a user decorator instead of accessing user with
 // '@Req` decorator
@@ -26,19 +36,26 @@ import { ApiTags } from '@nestjs/swagger';
 export class SchedulesController {
   constructor(private readonly schedulesService: SchedulesService) {}
 
+  @ApiOperation({
+    summary: 'Creates a new schedule item',
+  })
+  @ApiCreatedResponse({
+    type: SchedulePayload,
+  })
   @Post()
-  createOrUpdate(
+  create(
     @Body() createScheduleDto: CreateScheduleDto,
     @Req() request: RequestWithUser,
   ) {
-    return this.schedulesService.createOrUpdate(
-      createScheduleDto,
-      request.user.id,
-    );
+    return this.schedulesService.create(createScheduleDto, request.user.id);
   }
 
+  @ApiOperation({
+    summary: 'Returns an array of schedules for specified month',
+  })
+  @ApiQuery({ type: MonthQuery })
+  @ApiOkResponse({ type: [SchedulePayload] })
   @Get()
-  // :TODO: improve swagger documentation
   findAllByMonth(
     @Query('month') month: string,
     @Req() request: RequestWithUser,
@@ -46,6 +63,28 @@ export class SchedulesController {
     return this.schedulesService.findAllByMonth(month, request.user.id);
   }
 
+  @ApiOperation({
+    summary: 'Updates one schedule item',
+  })
+  @ApiOkResponse({
+    type: SchedulePayload,
+  })
+  @Put(':id')
+  update(
+    @Param('id') id: string,
+    @Body() updateScheduleDto: UpdateScheduleDto,
+    @Req() request: RequestWithUser,
+  ) {
+    return this.schedulesService.update(
+      +id,
+      updateScheduleDto,
+      request.user.id,
+    );
+  }
+
+  @ApiOperation({
+    summary: 'Deletes one schedule item',
+  })
   @Delete(':id')
   remove(@Param('id') id: string, @Req() request: RequestWithUser) {
     return this.schedulesService.remove(+id, request.user.id);
