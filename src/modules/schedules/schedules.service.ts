@@ -15,6 +15,7 @@ import {
   endOfMonth,
 } from 'date-fns';
 import { ScheduleStatusEnum } from './enum/schedule-status.enum';
+import { UpdateScheduleDto } from './dto/update-schedule.dto';
 
 @Injectable()
 export class SchedulesService {
@@ -23,25 +24,25 @@ export class SchedulesService {
     private readonly schedulesRepository: Repository<Schedule>,
   ) {}
 
-  async createOrUpdate(createScheduleDto: CreateScheduleDto, userId: string) {
-    // prevent submitting todo schedule before current day
+  async create(createScheduleDto: CreateScheduleDto, userId: string) {
+    const { date } = createScheduleDto;
+
     if (createScheduleDto.status === ScheduleStatusEnum.TODO) {
-      this.checkAddingTodoIsAllowed(createScheduleDto.date);
+      this.checkAddingTodoIsAllowed(date);
     }
 
-    const scheduledItemInDb = await this.findByDate(
-      createScheduleDto.date,
-      userId,
-    );
-    // if item exists in the database update it, otherwise save it
+    const scheduledItemInDb = await this.schedulesRepository.findOne({
+      where: {
+        user: userId,
+        date,
+      },
+    });
+
+    // there should be only one status per date in db
     if (scheduledItemInDb) {
-      return this.update(createScheduleDto, scheduledItemInDb.status, userId);
-    } else {
-      return this.create(createScheduleDto, userId);
+      throw new BadRequestException('An item for this date already exists');
     }
-  }
 
-  private create(createScheduleDto: CreateScheduleDto, userId: string) {
     const schedule = this.schedulesRepository.create({
       ...createScheduleDto,
       user: userId,
@@ -50,28 +51,22 @@ export class SchedulesService {
     return this.schedulesRepository.save(schedule);
   }
 
-  private async update(
-    createScheduleDto: CreateScheduleDto,
-    scheduledItemInDbStatus: string,
+  async update(
+    id: number,
+    updateScheduleDto: UpdateScheduleDto,
     userId: string,
   ) {
-    const { date } = createScheduleDto;
-
-    // TODO: improve this function. it's probably better
-    // to use a class property.
-    this.checkItemWithSameStatusAlreadyExists(
-      createScheduleDto.status,
-      scheduledItemInDbStatus,
-    );
-
-    await this.schedulesRepository.update(
+    const toUpdate = await this.schedulesRepository.update(
       {
+        id,
         user: userId,
-        date,
       },
-      createScheduleDto,
+      {
+        status: updateScheduleDto.status,
+      },
     );
-    return this.findByDate(date, userId);
+    if (!toUpdate.affected) throw new NotFoundException();
+    return this.schedulesRepository.findOne(id);
   }
 
   async remove(id: number, userId: string) {
@@ -82,17 +77,6 @@ export class SchedulesService {
     if (!deleted.affected) throw new NotFoundException();
   }
 
-  private checkItemWithSameStatusAlreadyExists(
-    updateStatus: string,
-    scheduledItemInDbStatus: string,
-  ) {
-    if (updateStatus === scheduledItemInDbStatus) {
-      throw new BadRequestException(
-        'a schedule with specified status already exists for this date',
-      );
-    }
-  }
-
   private checkAddingTodoIsAllowed(itemDate: string) {
     const parsed = parseISO(itemDate);
     const isBeforeToday = isBefore(parsed, new Date()) && !isToday(parsed);
@@ -101,15 +85,6 @@ export class SchedulesService {
         'Adding todo schedule before current date is not allowed',
       );
     }
-  }
-
-  private findByDate(date: string, userId: string) {
-    return this.schedulesRepository.findOne({
-      where: {
-        user: userId,
-        date,
-      },
-    });
   }
 
   findAllByMonth(month: string, userId: string) {

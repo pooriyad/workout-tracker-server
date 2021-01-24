@@ -1,3 +1,4 @@
+import { Exclude } from 'class-transformer';
 import {
   CreateDateColumn,
   PrimaryGeneratedColumn,
@@ -8,15 +9,15 @@ export abstract class AbstractEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Exclude()
   @CreateDateColumn({
     type: 'timestamp with time zone',
-    select: false,
   })
   createdAt: Date;
 
+  @Exclude()
   @UpdateDateColumn({
     type: 'timestamp with time zone',
-    select: false,
   })
   updatedAt: Date;
 }
