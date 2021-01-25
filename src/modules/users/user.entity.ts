@@ -13,11 +13,9 @@ export class User extends AbstractEntityWithUUID {
   password: string;
 
   @Column({ nullable: true })
-  @Exclude()
   refreshToken: string;
 
-  @Column({ default: false })
-  @Exclude()
+  @Column({ default: false, select: false })
   isEmailConfirmed: boolean;
 
   @BeforeInsert()

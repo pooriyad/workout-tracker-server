@@ -10,11 +10,13 @@ export abstract class AbstractEntityWithUUID {
 
   @CreateDateColumn({
     type: 'timestamp without time zone',
+    select: false,
   })
   createdAt: Date;
 
   @UpdateDateColumn({
     type: 'timestamp without time zone',
+    select: false,
   })
   updatedAt: Date;
 }
