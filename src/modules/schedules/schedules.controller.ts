@@ -9,12 +9,10 @@ import {
   UseInterceptors,
   ClassSerializerInterceptor,
   UseGuards,
-  Req,
   Query,
 } from '@nestjs/common';
 import { SchedulesService } from './schedules.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { RequestWithUser } from '../auth/interface/request-with-user.interface';
 import {
   ApiCreatedResponse,
   ApiOkResponse,
@@ -26,9 +24,8 @@ import { CreateScheduleDto } from './dto/create-schedule.dto';
 import { UpdateScheduleDto } from './dto/update-schedule.dto';
 import { SchedulePayload } from './dto/schedule-payload.dto';
 import { MonthQuery } from './dto/month-query.dto';
+import { UserId } from 'src/decorators/user-id.decorator';
 
-// TODO: use a user decorator instead of accessing user with
-// '@Req` decorator
 @ApiTags('schedules')
 @UseInterceptors(ClassSerializerInterceptor)
 @UseGuards(JwtAuthGuard)
@@ -45,9 +42,9 @@ export class SchedulesController {
   @Post()
   create(
     @Body() createScheduleDto: CreateScheduleDto,
-    @Req() request: RequestWithUser,
+    @UserId() userId: string,
   ) {
-    return this.schedulesService.create(createScheduleDto, request.user.id);
+    return this.schedulesService.create(createScheduleDto, userId);
   }
 
   @ApiOperation({
@@ -56,11 +53,8 @@ export class SchedulesController {
   @ApiQuery({ type: MonthQuery })
   @ApiOkResponse({ type: [SchedulePayload] })
   @Get()
-  findAllByMonth(
-    @Query('month') month: string,
-    @Req() request: RequestWithUser,
-  ) {
-    return this.schedulesService.findAllByMonth(month, request.user.id);
+  findAllByMonth(@Query('month') month: string, @UserId() userId: string) {
+    return this.schedulesService.findAllByMonth(month, userId);
   }
 
   @ApiOperation({
@@ -73,20 +67,16 @@ export class SchedulesController {
   update(
     @Param('id') id: string,
     @Body() updateScheduleDto: UpdateScheduleDto,
-    @Req() request: RequestWithUser,
+    @UserId() userId: string,
   ) {
-    return this.schedulesService.update(
-      +id,
-      updateScheduleDto,
-      request.user.id,
-    );
+    return this.schedulesService.update(+id, updateScheduleDto, userId);
   }
 
   @ApiOperation({
     summary: 'Deletes one schedule item',
   })
   @Delete(':id')
-  remove(@Param('id') id: string, @Req() request: RequestWithUser) {
-    return this.schedulesService.remove(+id, request.user.id);
+  remove(@Param('id') id: string, @UserId() userId: string) {
+    return this.schedulesService.remove(+id, userId);
   }
 }
