@@ -7,6 +7,7 @@ import { DatabaseModule } from './modules/database/database.module';
 import { UsersModule } from './modules/users/users.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { SchedulesModule } from './modules/schedules/schedules.module';
+import { WeightsModule } from './modules/weights/weights.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { SchedulesModule } from './modules/schedules/schedules.module';
     UsersModule,
     AuthModule,
     SchedulesModule,
+    WeightsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
