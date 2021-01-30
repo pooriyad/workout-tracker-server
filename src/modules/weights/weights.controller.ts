@@ -26,7 +26,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { UserId } from 'src/decorators/user-id.decorator';
 import { WeightPayload } from './dto/weight-payload.dto';
 import { UnprocessableError } from './dto/unprocessable-error.dto';
-import { DateQuery } from './dto/date-query.dto';
+import { FindQuery } from './dto/find-query.dto';
 
 @ApiTags('Weights')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -53,17 +53,20 @@ export class WeightsController {
   }
 
   @ApiOperation({
-    summary:
-      'Returns weight records between current date and the specified date',
+    summary: 'Returns weight records based on query',
+    description:
+      'One query parameter must be provided. Either "month" or "date".',
   })
-  @ApiQuery({ type: DateQuery })
+  @ApiQuery({
+    type: FindQuery,
+  })
   @ApiOkResponse({
     type: WeightPayload,
     isArray: true,
   })
   @Get()
-  findAllFromDate(@Query() query: DateQuery, @UserId() userId: string) {
-    return this.weightsService.findAllFromDate(query.date, userId);
+  findAll(@Query() query: FindQuery, @UserId() userId: string) {
+    return this.weightsService.findAll(query, userId);
   }
 
   @ApiOperation({
