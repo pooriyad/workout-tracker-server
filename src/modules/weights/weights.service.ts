@@ -104,6 +104,9 @@ export class WeightsService {
         user: userId,
         measurementDate: Between(date, currentISODate),
       },
+      order: {
+        measurementDate: 'ASC',
+      },
     });
   }
   private throwRecordExist() {
