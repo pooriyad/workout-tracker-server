@@ -74,18 +74,22 @@ export class AuthService {
   }
 
   removeTokenCookies() {
-    const expireDate = new Date(0).toUTCString();
-
     return [
-      `Access-Token=; HttpOnly; Path=/; Max-Age=0; SameSite=Strict; Expires=${expireDate}`,
-      `Refresh-Token=; HttpOnly; Path=/; Max-Age=0; SameSite=Strict; Expires=${expireDate}`,
+      `Access-Token=; HttpOnly; Path=/; Max-Age=0; SameSite=Strict;`,
+      `Refresh-Token=; HttpOnly; Path=/; Max-Age=0; SameSite=Strict;`,
     ];
   }
 
   createJwtTokenCookie(token: string, tokenType: 'Refresh' | 'Access') {
-    return `${tokenType}-Token=${token}; HttpOnly; Path=/; Max-Age=${this.configService.get(
-      `JWT_${tokenType}_TOKEN_EXPIRATION_TIME`,
-    )}; SameSite=Strict`;
+    // convert expiration time from milliseconds to seconds
+    // because jsonwebtoken interprets numbers as milliseconds and
+    // Max-Age interprets numbers as seconds
+    const maxAge =
+      +this.configService.get(
+        `JWT_${tokenType.toUpperCase()}_TOKEN_EXPIRATION_TIME`,
+      ) / 1000;
+
+    return `${tokenType}-Token=${token}; HttpOnly; Secure; Path=/; Max-Age=${maxAge}; SameSite=Strict`;
   }
 
   async setRefreshToken() {
