@@ -51,6 +51,8 @@ export class AuthController {
   @Post('refresh-token')
   @HttpCode(HttpStatus.OK)
   refreshToken(@Req() request: RequestWithUser) {
+    this.authService.setUser(request.user);
+
     const newAccessTokenCookie = this.authService.createAccessTokenCookie();
 
     request.res.setHeader('Set-Cookie', newAccessTokenCookie);
