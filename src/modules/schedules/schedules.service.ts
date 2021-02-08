@@ -15,6 +15,7 @@ import {
   startOfMonth,
   endOfMonth,
   eachDayOfInterval,
+  isAfter,
 } from 'date-fns';
 import { ScheduleStatusEnum } from './enum/schedule-status.enum';
 import { UpdateScheduleDto } from './dto/update-schedule.dto';
@@ -32,6 +33,10 @@ export class SchedulesService {
 
     if (createScheduleDto.status === ScheduleStatusEnum.TODO) {
       this.checkAddingTodoIsAllowed(date);
+    }
+
+    if (createScheduleDto.status === ScheduleStatusEnum.DONE) {
+      this.checkAddingDoneIsAllowed(date);
     }
 
     const scheduledItemInDb = await this.schedulesRepository.findOne({
@@ -120,12 +125,22 @@ export class SchedulesService {
   }
 
   private checkAddingTodoIsAllowed(itemDate: string) {
-    const parsedISO = parseISO(itemDate);
+    const parsedISO = this.parsedISO(itemDate);
     const isBeforeToday =
       isBefore(parsedISO, new Date()) && !isToday(parsedISO);
     if (isBeforeToday) {
       throw new BadRequestException(
         'Adding todo schedule before current date is not allowed',
+      );
+    }
+  }
+
+  private checkAddingDoneIsAllowed(itemDate: string) {
+    const parsedISO = this.parsedISO(itemDate);
+
+    if (isAfter(parsedISO, new Date())) {
+      throw new BadRequestException(
+        'Adding done schedule after current date is not allowed',
       );
     }
   }
