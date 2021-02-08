@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Between, Repository } from 'typeorm';
+import { Between, Repository, MoreThan } from 'typeorm';
 import { CreateScheduleDto } from './dto/create-schedule.dto';
 import { Schedule } from './entities/schedule.entity';
 import {
@@ -61,7 +61,7 @@ export class SchedulesService {
     const { date } = createRecurringScheduleDto;
     const selectedWeekdays = createRecurringScheduleDto.weekdays;
 
-    await this.deleteFutureTodos(userId, date);
+    await this.deleteFutureTodos(userId);
 
     const allDatesUntilSpecifiedDate = this.getDatesUntil(date);
 
@@ -130,14 +130,13 @@ export class SchedulesService {
     }
   }
 
-  private async deleteFutureTodos(userId: string, date: string) {
+  private async deleteFutureTodos(userId: string) {
     const now = new Date();
-    const specifiedDate = this.parsedISO(date);
 
-    return this.schedulesRepository.delete({
+    await this.schedulesRepository.delete({
       user: userId,
       status: ScheduleStatusEnum.TODO,
-      date: Between(now, specifiedDate),
+      date: MoreThan(now),
     });
   }
 
