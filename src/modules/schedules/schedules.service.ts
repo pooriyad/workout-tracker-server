@@ -9,13 +9,16 @@ import { CreateScheduleDto } from './dto/create-schedule.dto';
 import { Schedule } from './entities/schedule.entity';
 import {
   isBefore,
+  getDay,
   parseISO,
   isToday,
   startOfMonth,
   endOfMonth,
+  eachDayOfInterval,
 } from 'date-fns';
 import { ScheduleStatusEnum } from './enum/schedule-status.enum';
 import { UpdateScheduleDto } from './dto/update-schedule.dto';
+import { CreatesRecurringScheduleDto } from './dto/create-recurring-schedule.dto';
 
 @Injectable()
 export class SchedulesService {
@@ -51,6 +54,29 @@ export class SchedulesService {
     return this.schedulesRepository.save(schedule);
   }
 
+  async createRecurringSchedule(
+    createRecurringScheduleDto: CreatesRecurringScheduleDto,
+    userId: string,
+  ) {
+    const { date } = createRecurringScheduleDto;
+    const selectedWeekdays = createRecurringScheduleDto.weekdays;
+
+    await this.deleteFutureTodos(userId, date);
+
+    const allDatesUntilSpecifiedDate = this.getDatesUntil(date);
+
+    // create an array of dates based on selected weekdays
+    const scheduleDates = this.createScheduleDates(
+      allDatesUntilSpecifiedDate,
+      selectedWeekdays,
+    );
+
+    // for each date in the array of scheduleDates create a schedule item
+    const scheduleItems = this.createScheduleItems(scheduleDates, userId);
+
+    await this.schedulesRepository.save(scheduleItems);
+  }
+
   async update(
     id: number,
     updateScheduleDto: UpdateScheduleDto,
@@ -77,18 +103,8 @@ export class SchedulesService {
     if (!deleted.affected) throw new NotFoundException();
   }
 
-  private checkAddingTodoIsAllowed(itemDate: string) {
-    const parsed = parseISO(itemDate);
-    const isBeforeToday = isBefore(parsed, new Date()) && !isToday(parsed);
-    if (isBeforeToday) {
-      throw new BadRequestException(
-        'Adding todo schedule before current date is not allowed',
-      );
-    }
-  }
-
   findAllByMonth(month: string, userId: string) {
-    const parsedMonth = parseISO(month);
+    const parsedMonth = this.parsedISO(month);
     const start = startOfMonth(parsedMonth);
     const end = endOfMonth(parsedMonth);
     return this.schedulesRepository.find({
@@ -96,6 +112,58 @@ export class SchedulesService {
         user: userId,
         date: Between(start, end),
       },
+    });
+  }
+
+  private parsedISO(ISODate: string) {
+    return parseISO(ISODate);
+  }
+
+  private checkAddingTodoIsAllowed(itemDate: string) {
+    const parsedISO = parseISO(itemDate);
+    const isBeforeToday =
+      isBefore(parsedISO, new Date()) && !isToday(parsedISO);
+    if (isBeforeToday) {
+      throw new BadRequestException(
+        'Adding todo schedule before current date is not allowed',
+      );
+    }
+  }
+
+  private async deleteFutureTodos(userId: string, date: string) {
+    const now = new Date();
+    const specifiedDate = this.parsedISO(date);
+
+    return this.schedulesRepository.delete({
+      user: userId,
+      status: ScheduleStatusEnum.TODO,
+      date: Between(now, specifiedDate),
+    });
+  }
+
+  private getDatesUntil(end: string) {
+    return eachDayOfInterval({
+      start: new Date(),
+      end: this.parsedISO(end),
+    });
+  }
+
+  private createScheduleDates(dates: Date[], selectedWeekdays: number[]) {
+    return dates.filter((date) => {
+      const currentDay = getDay(date);
+      if (selectedWeekdays.includes(currentDay)) {
+        return date;
+      }
+    });
+  }
+
+  private createScheduleItems(scheduleDates: Date[], userId: string) {
+    return scheduleDates.map((date: Date) => {
+      return {
+        date,
+        status: ScheduleStatusEnum.TODO,
+        user: userId,
+      };
     });
   }
 }

@@ -1,5 +1,5 @@
 import { Exclude } from 'class-transformer';
-import { isBefore, isToday, parseISO } from 'date-fns';
+import { isBefore, isToday } from 'date-fns';
 import { AbstractEntity } from 'src/common/abstract.entity';
 import { User } from 'src/modules/users/user.entity';
 import { AfterLoad, Column, Entity, ManyToOne } from 'typeorm';
@@ -8,7 +8,7 @@ import { ScheduleStatusEnum } from '../enum/schedule-status.enum';
 @Entity()
 export class Schedule extends AbstractEntity {
   @Column({ type: 'date' })
-  date: string;
+  date: Date;
 
   @Column()
   status: ScheduleStatusEnum;
@@ -19,11 +19,11 @@ export class Schedule extends AbstractEntity {
 
   @AfterLoad()
   updateStatus() {
-    const parsedDate = parseISO(this.date);
+    const date = new Date(this.date);
     if (
       this.status === 'todo' &&
-      isBefore(parsedDate, new Date()) &&
-      !isToday(parsedDate)
+      isBefore(date, new Date()) &&
+      !isToday(date)
     ) {
       this.status = ScheduleStatusEnum.INDETERMINATE;
     }
