@@ -25,6 +25,7 @@ import { UpdateScheduleDto } from './dto/update-schedule.dto';
 import { SchedulePayload } from './dto/schedule-payload.dto';
 import { MonthQuery } from './dto/month-query.dto';
 import { UserId } from 'src/decorators/user-id.decorator';
+import { CreatesRecurringScheduleDto } from './dto/create-recurring-schedule.dto';
 
 @ApiTags('schedules')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -45,6 +46,20 @@ export class SchedulesController {
     @UserId() userId: string,
   ) {
     return this.schedulesService.create(createScheduleDto, userId);
+  }
+
+  @ApiOperation({
+    summary: 'Creates recurring weekly to-do schedule until the specified date',
+  })
+  @Post('recurring')
+  createRecurringSchedule(
+    @Body() createRecurringScheduleDto: CreatesRecurringScheduleDto,
+    @UserId() userId: string,
+  ) {
+    return this.schedulesService.createRecurringSchedule(
+      createRecurringScheduleDto,
+      userId,
+    );
   }
 
   @ApiOperation({
