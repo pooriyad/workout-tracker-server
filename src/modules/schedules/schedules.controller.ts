@@ -68,8 +68,8 @@ export class SchedulesController {
   @ApiQuery({ type: MonthQuery })
   @ApiOkResponse({ type: [SchedulePayload] })
   @Get()
-  findAllByMonth(@Query('month') month: string, @UserId() userId: string) {
-    return this.schedulesService.findAllByMonth(month, userId);
+  findAllByMonth(@Query() query: MonthQuery, @UserId() userId: string) {
+    return this.schedulesService.findAllByMonth(query.month, userId);
   }
 
   @ApiOperation({
