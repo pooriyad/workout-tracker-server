@@ -65,4 +65,8 @@ export class UsersService {
   findByEmail(email: string) {
     return this.usersRepository.findOne({ email });
   }
+
+  getUserProfile(email: string) {
+    return this.usersRepository.findOne({ email }, { relations: ['profile'] });
+  }
 }
