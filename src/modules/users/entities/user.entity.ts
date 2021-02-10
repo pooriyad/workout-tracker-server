@@ -12,7 +12,7 @@ export class User extends AbstractEntityWithUUID {
   @Exclude()
   password: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, select: false })
   refreshToken: string;
 
   @Column({ default: false, select: false })
