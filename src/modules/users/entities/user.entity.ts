@@ -19,9 +19,10 @@ export class User extends AbstractEntityWithUUID {
   @Column({ default: false, select: false })
   isEmailConfirmed: boolean;
 
-  @OneToOne(() => Profile)
+  // create a default profile record on user registration
+  @OneToOne(() => Profile, { cascade: true, nullable: false })
   @JoinColumn()
-  profile: Profile;
+  profile: Profile | Record<string, any> = {};
 
   @BeforeInsert()
   emailToLowerCase() {

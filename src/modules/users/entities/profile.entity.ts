@@ -1,11 +1,12 @@
 import { AbstractEntity } from 'src/common/abstract.entity';
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class Profile extends AbstractEntity {
-  @Column()
+  @PrimaryGeneratedColumn()
+  @Column({ nullable: true })
   name: string;
 
-  @Column({ type: 'integer' })
+  @Column({ type: 'integer', nullable: true })
   height: number;
 }
