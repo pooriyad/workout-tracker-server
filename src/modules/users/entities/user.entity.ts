@@ -1,7 +1,8 @@
 import { Exclude } from 'class-transformer';
-import { BeforeInsert, Column, Entity } from 'typeorm';
+import { BeforeInsert, Column, Entity, OneToOne } from 'typeorm';
 import { AbstractEntityWithUUID } from 'src/common/abstract-with-uuid.entity';
 import * as bcrypt from 'bcrypt';
+import { Profile } from './profile.entity';
 
 @Entity()
 export class User extends AbstractEntityWithUUID {
@@ -17,6 +18,9 @@ export class User extends AbstractEntityWithUUID {
 
   @Column({ default: false, select: false })
   isEmailConfirmed: boolean;
+
+  @OneToOne(() => Profile)
+  profile: Profile;
 
   @BeforeInsert()
   emailToLowerCase() {
