@@ -1,7 +1,9 @@
 import {
+  Body,
   ClassSerializerInterceptor,
   Controller,
   Get,
+  Put,
   Req,
   UseGuards,
   UseInterceptors,
@@ -10,6 +12,7 @@ import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { RequestWithUser } from '../auth/interface/request-with-user.interface';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { ProfilePayload } from './dto/profile-payload.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 import { UsersService } from './users.service';
 
 @ApiTags('users')
@@ -28,5 +31,19 @@ export class UsersController {
   @Get()
   findMe(@Req() request: RequestWithUser) {
     return this.userService.getUserProfile(request.user.email);
+  }
+
+  @ApiOperation({
+    summary: 'Updates user profile',
+  })
+  @ApiOkResponse({
+    type: ProfilePayload,
+  })
+  @Put('profile')
+  updateUserProfile(
+    @Req() request: RequestWithUser,
+    @Body() updateProfileDto: UpdateProfileDto,
+  ) {
+    return this.userService.updateProfile(request.user.id, updateProfileDto);
   }
 }
