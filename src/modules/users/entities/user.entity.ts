@@ -1,7 +1,8 @@
 import { Exclude } from 'class-transformer';
-import { BeforeInsert, Column, Entity } from 'typeorm';
+import { BeforeInsert, Column, Entity, JoinColumn, OneToOne } from 'typeorm';
 import { AbstractEntityWithUUID } from 'src/common/abstract-with-uuid.entity';
 import * as bcrypt from 'bcrypt';
+import { Profile } from './profile.entity';
 
 @Entity()
 export class User extends AbstractEntityWithUUID {
@@ -12,11 +13,16 @@ export class User extends AbstractEntityWithUUID {
   @Exclude()
   password: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, select: false })
   refreshToken: string;
 
   @Column({ default: false, select: false })
   isEmailConfirmed: boolean;
+
+  // create a default profile record on user insert
+  @OneToOne(() => Profile, { cascade: true, nullable: false })
+  @JoinColumn()
+  profile: Profile | Record<string, any> = {};
 
   @BeforeInsert()
   emailToLowerCase() {

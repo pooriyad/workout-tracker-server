@@ -8,8 +8,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { PostgresErrorCodes } from '../database/postgres-error-codes.enum';
 import { CreateUserDto } from './dto/create-user.dto';
-import { User } from './user.entity';
+import { User } from './entities/user.entity';
 import * as bcrypt from 'bcrypt';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 
 @Injectable()
 export class UsersService {
@@ -64,5 +65,23 @@ export class UsersService {
 
   findByEmail(email: string) {
     return this.usersRepository.findOne({ email });
+  }
+
+  getUserProfile(email: string) {
+    return this.usersRepository.findOne({ email }, { relations: ['profile'] });
+  }
+
+  async updateProfile(userId: string, updateProfileDto: UpdateProfileDto) {
+    // Todo: if request body is empty return
+    const toUpdate = await this.usersRepository.findOne(
+      { id: userId },
+      { relations: ['profile'] },
+    );
+
+    toUpdate.profile = Object.assign(toUpdate.profile, { ...updateProfileDto });
+
+    return this.usersRepository.save(toUpdate).then(() => {
+      return toUpdate.profile;
+    });
   }
 }

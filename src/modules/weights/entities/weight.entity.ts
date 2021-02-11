@@ -1,6 +1,6 @@
 import { Exclude } from 'class-transformer';
 import { AbstractEntity } from 'src/common/abstract.entity';
-import { User } from 'src/modules/users/user.entity';
+import { User } from 'src/modules/users/entities/user.entity';
 import { Column, Entity, ManyToOne } from 'typeorm';
 import { MeasurementUnitEnum } from '../enum/measurement-unit.enum';
 
