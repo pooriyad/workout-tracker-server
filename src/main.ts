@@ -1,8 +1,8 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import * as CookieParser from 'cookie-parser';
+import { setupSwagger } from './setup-swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -23,13 +23,9 @@ async function bootstrap() {
   );
 
   // swagger
-  const options = new DocumentBuilder()
-    .setTitle('Workout tracker API')
-    .setVersion('1.0')
-    .build();
-  const document = SwaggerModule.createDocument(app, options);
-  SwaggerModule.setup('api', app, document);
-
+  if (process.env.NODE_ENV !== 'production') {
+    setupSwagger(app);
+  }
   await app.listen(3000);
 }
 bootstrap();
