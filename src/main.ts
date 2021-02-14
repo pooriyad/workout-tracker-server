@@ -3,6 +3,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import * as CookieParser from 'cookie-parser';
 import { setupSwagger } from './setup-swagger';
+import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -22,10 +23,13 @@ async function bootstrap() {
     }),
   );
 
+  const configService = app.get(ConfigService);
+
   // swagger
-  if (process.env.NODE_ENV !== 'production') {
+  if (configService.get('NODE_ENV') !== 'production') {
     setupSwagger(app);
   }
-  await app.listen(3000);
+
+  await app.listen(configService.get('PORT'));
 }
 bootstrap();
