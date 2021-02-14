@@ -6,11 +6,13 @@ import { setupSwagger } from './setup-swagger';
 import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, {
-    cors: {
-      origin: 'http://localhost:8080',
-      credentials: true,
-    },
+  const app = await NestFactory.create(AppModule);
+
+  const configService = app.get(ConfigService);
+
+  app.enableCors({
+    origin: configService.get('ALLOWED_ORIGIN'),
+    credentials: true,
   });
 
   app.setGlobalPrefix('api');
@@ -22,8 +24,6 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
     }),
   );
-
-  const configService = app.get(ConfigService);
 
   // swagger
   if (configService.get('NODE_ENV') !== 'production') {

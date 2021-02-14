@@ -14,6 +14,7 @@ import { WeightsModule } from './modules/weights/weights.module';
     DatabaseModule,
     ConfigModule.forRoot({
       validationSchema: Joi.object({
+        ALLOWED_ORIGIN: Joi.string().required(),
         POSTGRES_HOST: Joi.string().required(),
         POSTGRES_PORT: Joi.number().required(),
         POSTGRES_USER: Joi.string().required(),
