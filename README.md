@@ -1,6 +1,22 @@
 ## Description
 
-Workout tracker API built with Nestjs.
+An app for tracking workout sessions and weight.
+
+## Tech stack
+
+The tech stack includes:
+
+- Nestjs
+- Postgresql
+- TypeORM
+
+## API documentation
+
+The API documentation can be found at `/documentation` after running the app in development mode.
+
+## Environment variables
+
+Information about environment variables can be found at `app.module.ts` file and in `ConfigModule` options.
 
 ## Installation
 
@@ -19,17 +35,4 @@ $ npm run start:dev
 
 # production mode
 $ npm run start:prod
-```
-
-## Test
-
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
 ```
