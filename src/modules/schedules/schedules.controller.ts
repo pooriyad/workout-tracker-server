@@ -26,6 +26,7 @@ import { SchedulePayload } from './dto/schedule-payload.dto';
 import { MonthQuery } from './dto/month-query.dto';
 import { UserId } from 'src/decorators/user-id.decorator';
 import { CreatesRecurringScheduleDto } from './dto/create-recurring-schedule.dto';
+import { ScheduleStatisticsPayload } from './dto/schedule-statistics-paylaod.dto';
 
 @ApiTags('schedules')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -93,5 +94,14 @@ export class SchedulesController {
   @Delete(':id')
   remove(@Param('id') id: string, @UserId() userId: string) {
     return this.schedulesService.remove(+id, userId);
+  }
+
+  @ApiOperation({
+    summary: 'Returns schedules statistics',
+  })
+  @ApiOkResponse({ type: ScheduleStatisticsPayload })
+  @Get('statistics')
+  getStatistics(@UserId() userId: string) {
+    return this.schedulesService.getStatistics(userId);
   }
 }
