@@ -120,6 +120,21 @@ export class SchedulesService {
     });
   }
 
+  async getStatistics(userId: string) {
+    const statistics = {
+      done: 0,
+      missed: 0,
+      indeterminate: 0,
+      todo: 0,
+    };
+
+    const schedules = await this.schedulesRepository.find({ user: userId });
+
+    schedules.forEach((schedule) => statistics[schedule.status]++);
+
+    return statistics;
+  }
+
   private parsedISO(ISODate: string) {
     return parseISO(ISODate);
   }
