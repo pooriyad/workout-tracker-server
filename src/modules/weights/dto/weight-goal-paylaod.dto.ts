@@ -1,9 +1,4 @@
-export class WeightPayload {
-  /**
-    @example 8
-  */
-  id: number;
-
+export class WeightGoalPayload {
   /**
     @example 2021-08-23
   */

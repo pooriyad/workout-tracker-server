@@ -8,7 +8,7 @@ export class CreateWeightDto {
   @IsISO8601({
     strict: true,
   })
-  measurementDate: string;
+  date: string;
 
   /**
    * Weight in whole number like 80, or with one decimal point like 80.5
