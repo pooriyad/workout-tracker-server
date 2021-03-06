@@ -13,9 +13,11 @@ import {
   startOfMonth,
 } from 'date-fns';
 import { Between, Repository } from 'typeorm';
+import { CreateWeightGoalDto } from './dto/create-weight-goal.dto';
 import { CreateWeightDto } from './dto/create-weight.dto';
 import { FindQuery } from './dto/find-query.dto';
 import { UpdateWeightDto } from './dto/update-weight.dto';
+import { WeightGoal } from './entities/weight-goal.entity';
 import { Weight } from './entities/weight.entity';
 
 @Injectable()
@@ -23,6 +25,8 @@ export class WeightsService {
   constructor(
     @InjectRepository(Weight)
     private readonly weightsRepository: Repository<Weight>,
+    @InjectRepository(WeightGoal)
+    private readonly weightGoalRepsitory: Repository<WeightGoal>,
   ) {}
 
   private date: string = null;
@@ -78,6 +82,39 @@ export class WeightsService {
       id,
     });
     if (!toDelete.affected) throw new NotFoundException();
+  }
+
+  async createWeightGoal(
+    createWeightGoalDto: CreateWeightGoalDto,
+    userId: string,
+  ) {
+    const weightGoalToInsert = this.weightGoalRepsitory.create({
+      // if it exists it updates it, otherwise it creates
+      // one with id of 1. it's a one-to-one relationship
+      // between user and weightGoal so there should only
+      // be one weightGoal record for each user
+      id: 1,
+      ...createWeightGoalDto,
+      user: userId,
+    });
+    const { date, weight } = await this.weightGoalRepsitory.save(
+      weightGoalToInsert,
+    );
+    return { date, weight };
+  }
+
+  async findWeightGoal(userId: string) {
+    const weightGoal = await this.weightGoalRepsitory.findOne({
+      user: userId,
+    });
+    if (weightGoal) {
+      return {
+        weight: weightGoal.weight,
+        date: weightGoal.date,
+      };
+    } else {
+      throw new NotFoundException();
+    }
   }
 
   private async findAllByMonth(month: string, userId: string) {
