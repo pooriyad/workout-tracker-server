@@ -1,4 +1,4 @@
-export class WeightGoalPayload {
+export class CreateWeightGoalPayload {
   /**
     @example 2021-08-23
   */
