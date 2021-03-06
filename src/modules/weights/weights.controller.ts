@@ -27,8 +27,9 @@ import { UserId } from 'src/decorators/user-id.decorator';
 import { WeightPayload } from './dto/weight-payload.dto';
 import { UnprocessableError } from './dto/unprocessable-error.dto';
 import { FindQuery } from './dto/find-query.dto';
-import { WeightGoalPayload } from './dto/weight-goal-paylaod.dto';
 import { CreateWeightGoalDto } from './dto/create-weight-goal.dto';
+import { CreateWeightGoalPayload } from './dto/create-weight-goal-paylaod.dto';
+import { GetWeightGoalPayload } from './dto/get-weight-goal-paylaod.dto';
 
 @ApiTags('Weights')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -98,7 +99,7 @@ export class WeightsController {
     summary: 'Creates a new weight goal',
   })
   @ApiCreatedResponse({
-    type: WeightGoalPayload,
+    type: CreateWeightGoalPayload,
   })
   @Post('goal')
   createWeightGoal(
@@ -112,7 +113,7 @@ export class WeightsController {
     summary: 'Returns the weight goal',
   })
   @ApiCreatedResponse({
-    type: WeightGoalPayload,
+    type: GetWeightGoalPayload,
   })
   @Get('goal')
   findWeightGoal(@UserId() userId: string) {
