@@ -130,12 +130,12 @@ export class WeightsService {
         },
       },
     );
-
     if (weightGoal) {
       return {
         goalWeight: weightGoal.weight,
-        gaolDate: weightGoal.date,
+        goalDate: weightGoal.date,
         lastWeight: lastWeight.weight,
+        lastWeightDate: lastWeight.date,
       };
     } else {
       throw new NotFoundException();
