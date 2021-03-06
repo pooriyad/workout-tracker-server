@@ -101,7 +101,7 @@ export class WeightsService {
     if (weightToUpdate.affected) {
       return {
         date: createWeightGoalDto.date,
-        weight: createWeightGoalDto.weight,
+        weight: +createWeightGoalDto.weight,
       };
     } else {
       const weightGoalToInsert = this.weightGoalRepsitory.create({
