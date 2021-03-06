@@ -88,19 +88,31 @@ export class WeightsService {
     createWeightGoalDto: CreateWeightGoalDto,
     userId: string,
   ) {
-    const weightGoalToInsert = this.weightGoalRepsitory.create({
-      // if it exists it updates it, otherwise it creates
-      // one with id of 1. it's a one-to-one relationship
-      // between user and weightGoal so there should only
-      // be one weightGoal record for each user
-      id: 1,
-      ...createWeightGoalDto,
-      user: userId,
-    });
-    const { date, weight } = await this.weightGoalRepsitory.save(
-      weightGoalToInsert,
+    // first try to update, if it updates it means it is already
+    // present, otherwise save a new record
+    const weightToUpdate = await this.weightGoalRepsitory.update(
+      {
+        user: userId,
+      },
+      {
+        ...createWeightGoalDto,
+      },
     );
-    return { date, weight };
+    if (weightToUpdate.affected) {
+      return {
+        date: createWeightGoalDto.date,
+        weight: createWeightGoalDto.weight,
+      };
+    } else {
+      const weightGoalToInsert = this.weightGoalRepsitory.create({
+        ...createWeightGoalDto,
+        user: userId,
+      });
+      const { date, weight } = await this.weightGoalRepsitory.save(
+        weightGoalToInsert,
+      );
+      return { date, weight };
+    }
   }
 
   async findWeightGoal(userId: string) {
