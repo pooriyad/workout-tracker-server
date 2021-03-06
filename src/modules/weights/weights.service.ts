@@ -119,10 +119,23 @@ export class WeightsService {
     const weightGoal = await this.weightGoalRepsitory.findOne({
       user: userId,
     });
+
+    const lastWeight = await this.weightsRepository.findOne(
+      {
+        user: userId,
+      },
+      {
+        order: {
+          date: 'DESC',
+        },
+      },
+    );
     if (weightGoal) {
       return {
-        weight: weightGoal.weight,
-        date: weightGoal.date,
+        goalWeight: weightGoal.weight,
+        goalDate: weightGoal.date,
+        lastWeight: lastWeight.weight,
+        lastWeightDate: lastWeight.date,
       };
     } else {
       throw new NotFoundException();
