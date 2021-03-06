@@ -25,11 +25,11 @@ export class WeightsService {
     private readonly weightsRepository: Repository<Weight>,
   ) {}
 
-  private measurementDate: string = null;
+  private date: string = null;
   private userId: string = null;
 
   async create(createWeightDto: CreateWeightDto, userId: string) {
-    this.measurementDate = createWeightDto.measurementDate;
+    this.date = createWeightDto.date;
     this.userId = userId;
 
     await this.checkAddingIsAllowed();
@@ -38,10 +38,10 @@ export class WeightsService {
       ...createWeightDto,
       user: userId,
     });
-    const { id, weight, measurementDate } = await this.weightsRepository.save(
+    const { id, weight, date } = await this.weightsRepository.save(
       weightRecord,
     );
-    return { id, weight, measurementDate };
+    return { id, weight, date };
   }
 
   async update(id: number, updateWeightDto: UpdateWeightDto, userId: string) {
@@ -88,7 +88,7 @@ export class WeightsService {
     return this.weightsRepository.find({
       where: {
         user: userId,
-        measurementDate: Between(start, end),
+        date: Between(start, end),
       },
     });
   }
@@ -102,10 +102,10 @@ export class WeightsService {
     return this.weightsRepository.find({
       where: {
         user: userId,
-        measurementDate: Between(date, currentISODate),
+        date: Between(date, currentISODate),
       },
       order: {
-        measurementDate: 'ASC',
+        date: 'ASC',
       },
     });
   }
@@ -131,13 +131,13 @@ export class WeightsService {
   }
 
   private isAfterToday() {
-    const parsedMeasurementDate = parseISO(this.measurementDate);
-    return isAfter(parsedMeasurementDate, new Date());
+    const parsedDate = parseISO(this.date);
+    return isAfter(parsedDate, new Date());
   }
 
   private doesRecordExist() {
     return this.weightsRepository.findOne({
-      measurementDate: this.measurementDate,
+      date: this.date,
       user: this.userId,
     });
   }

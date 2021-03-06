@@ -7,7 +7,7 @@ export class WeightPayload {
   /**
     @example 2021-08-23
   */
-  measurementDate: string;
+  date: string;
 
   /**
     @example 80.2
