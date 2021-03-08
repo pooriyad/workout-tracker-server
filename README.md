@@ -2,12 +2,19 @@
 
 The server side code of an app for tracking workout sessions and weight.
 
+## Features
+
+- Setting workout schedule
+- Keeping track of weight
+- Setting weight goal
+- Workout statistics (done, to-do, missed, indeterminate)
+
 ## Tech stack
 
 The tech stack includes:
 
 - Nestjs
-- Postgresql
+- PostgreSQL
 - TypeORM
 
 ## API documentation
