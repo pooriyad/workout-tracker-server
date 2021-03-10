@@ -1,6 +1,6 @@
 ## Description
 
-The server side code of an app for tracking workout sessions and weight.
+The server side of a web app for tracking workout metrics.
 
 ## Features
 
